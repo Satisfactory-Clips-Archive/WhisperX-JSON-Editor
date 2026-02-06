@@ -1,13 +1,13 @@
 {
   "type": "module",
-  "name": "@signpostmarv/nodejs-template",
-  "description": "nodejs template",
+  "name": "@satisfactory-clips-archive/whisperx-json-editor",
+  "description": "GUI Editor for WhisperX JSON output",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/SignpostMarv/nodejs-template.git"
+    "url": "git+https://github.com/satisfactory-clips-archive/WhisperX-JSON-Editor.git"
   },
-  "funding": "https://github.com/SignpostMarv/nodejs-template?sponsor=1",
+  "funding": "https://github.com/satisfactory-clips-archive/WhisperX-JSON-Editor?sponsor=1",
   "exports": "./index.js",
   "types": "./index.d.ts",
   "devDependencies": {

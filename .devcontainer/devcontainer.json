@@ -1,5 +1,5 @@
 {
-	"name": "nodejs template",
+	"name": "WhisperX JSON Editor",
 	"dockerComposeFile": "./docker-compose.yml",
 	"service": "devcontainer",
 	"workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
