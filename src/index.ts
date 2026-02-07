@@ -293,7 +293,7 @@ function update(
 						whisperx.segments as segment_with_words[]
 					).indexOf(segment as segment_with_words),
 					(segment, i) => {
-						const overall_speaker = Object.entries(segment.words
+						const sorted = Object.entries(segment.words
 							.reduce((
 								was,
 								is,
@@ -306,7 +306,9 @@ function update(
 
 								return was;
 							}, {}))
-							.sort(([, a], [, b]) => b - a)[0][0] as (
+							.sort(([, a], [, b]) => b - a);
+
+						const overall_speaker = (sorted[0] || [])[0] as (
 								| `SPEAKER_${number}`
 								| undefined
 						);
