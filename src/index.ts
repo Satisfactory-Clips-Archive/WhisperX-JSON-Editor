@@ -334,67 +334,67 @@ function update(
 		)['segments'][number],
 		i: number,
 	) {
-						const sorted = Object.entries(segment.words
-							.reduce((
-								was,
-								is,
-							): {[key: `SPEAKER_${number}`]: number} => {
-								if (!('speaker' in is)) {
-									return was;
-								}
+		const sorted = Object.entries(segment.words
+			.reduce((
+				was,
+				is,
+			): {[key: `SPEAKER_${number}`]: number} => {
+				if (!('speaker' in is)) {
+					return was;
+				}
 
-								was[(is as word_with_speaker).speaker] += 1;
+				was[(is as word_with_speaker).speaker] += 1;
 
-								return was;
-							}, {}))
-							.sort(([, a], [, b]) => b - a);
+				return was;
+			}, {}))
+			.sort(([, a], [, b]) => b - a);
 
-						const overall_speaker = (sorted[0] || [])[0] as (
-							| `SPEAKER_${number}`
-							| undefined
-						);
+		const overall_speaker = (sorted[0] || [])[0] as (
+			| `SPEAKER_${number}`
+			| undefined
+		);
 
-						return html`
-							<li>
-								<input
-									type="checkbox"
-									name="bulk-action"
-									value="${i}"
-									aria-label="Bulk Action"
-								>
-								<time
-									datetime="PT${segment.start}S"
-								>${
-									time_to_timestamp(segment.start)
-								}</time>
-								<span>${
-									(
-										overall_speaker
-											? speaker_map[overall_speaker]
-											: undefined
-									) || overall_speaker
-								}: </span>
-								<ol>
-								${repeat(
-									segment.words as unknown as (
-										word_with_speaker[]
-									),
-									(
-										word,
-									) => `${
-										i
-									}::${
-										segment.words.indexOf(word)
-									}`,
-									(word, j) => render_word_item(
-										word,
-										i,
-										j,
-									),
-								)}
-								</ol>
-							</li>
-							`;
+		return html`
+			<li>
+				<input
+					type="checkbox"
+					name="bulk-action"
+					value="${i}"
+					aria-label="Bulk Action"
+				>
+				<time
+					datetime="PT${segment.start}S"
+				>${
+					time_to_timestamp(segment.start)
+				}</time>
+				<span>${
+					(
+						overall_speaker
+							? speaker_map[overall_speaker]
+							: undefined
+					) || overall_speaker
+				}: </span>
+				<ol>
+				${repeat(
+					segment.words as unknown as (
+						word_with_speaker[]
+					),
+					(
+						word,
+					) => `${
+						i
+					}::${
+						segment.words.indexOf(word)
+					}`,
+					(word, j) => render_word_item(
+						word,
+						i,
+						j,
+					),
+				)}
+				</ol>
+			</li>
+		`;
 	}
 
 	function render_word_item(
@@ -406,33 +406,33 @@ function update(
 		j: number,
 	) {
 		return html`
-									<li>
-										<span
-											contenteditable
-											data-i="${i}"
-											data-j="${j}"
-											data-k="${k++}"
-										>${word.word}</span>
-										${when(
-											show_hide_speakers,
-											() => html`
-												<input
-													id="speaker_${i}_${j}"
-													list="speaker-values"
-													.value="${
-														'speaker' in word
-															? (
-																speaker_map[
-																	word.speaker
-																] || word.speaker
-															)
-															: ''
-													}"
-												>
-											`,
-										)}
-									</li>
-									`;
+			<li>
+				<span
+					contenteditable
+					data-i="${i}"
+					data-j="${j}"
+					data-k="${k++}"
+				>${word.word}</span>
+				${when(
+					show_hide_speakers,
+					() => html`
+						<input
+							id="speaker_${i}_${j}"
+							list="speaker-values"
+							.value="${
+								'speaker' in word
+									? (
+										speaker_map[
+											word.speaker
+										] || word.speaker
+									)
+									: ''
+							}"
+						>
+					`,
+				)}
+			</li>
+		`;
 	}
 
 	render(template, target);
