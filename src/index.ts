@@ -334,19 +334,21 @@ function update(
 		)['segments'][number],
 		i: number,
 	) {
-		const sorted = Object.entries(segment.words
-			.reduce((
-				was,
-				is,
-			): {[key: `SPEAKER_${number}`]: number} => {
-				if (!('speaker' in is)) {
-					return was;
-				}
+		const unsorted: {[key: `SPEAKER_${number}`]: number} = {};
 
-				was[(is as word_with_speaker).speaker] += 1;
+		for (const word of segment.words) {
+			if (!('speaker' in word)) {
+				continue;
+			}
 
-				return was;
-			}, {}))
+			if (!(word.speaker in unsorted)) {
+				unsorted[word.speaker] = 0;
+			}
+
+			++unsorted[word.speaker];
+		}
+
+		const sorted = Object.entries(unsorted)
 			.sort(([, a], [, b]) => b - a);
 
 		const overall_speaker = (sorted[0] || [])[0] as (
