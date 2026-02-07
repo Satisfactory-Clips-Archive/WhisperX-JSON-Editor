@@ -16,12 +16,7 @@
 		},
 		"word": {
 			"type": "object",
-			"required": [
-				"word",
-				"start",
-				"end",
-				"score"
-			],
+			"required": ["word", "start", "end", "score"],
 			"properties": {
 				"word": {
 					"type": "string",
@@ -51,10 +46,7 @@
 		}
 	},
 	"type": "object",
-	"required": [
-		"segments",
-		"language"
-	],
+	"required": ["segments", "language"],
 	"properties": {
 		"segments": {
 			"type": "array",
