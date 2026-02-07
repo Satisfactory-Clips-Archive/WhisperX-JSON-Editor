@@ -14,7 +14,7 @@ const config = [
 	...typescript,
 	{
 		files: ['**/*.ts'],
-		ignores: ['**/*.d.ts', '**/*.js', '**/*.mjs'],
+		ignores: ['**/*.d.ts', '**/*.js', '**/*.mjs', './src/**/*.js'],
 	},
 ];
 

@@ -1,0 +1,93 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "satisfactory-clips-archive/whisperx-json-format",
+	"$defs": {
+		"start": {
+			"type": "number",
+			"minimum": 0
+		},
+		"end": {
+			"type": "number",
+			"minimum": 0
+		},
+		"speaker": {
+			"type": "string",
+			"pattern": "^SPEAKER_\\d+$"
+		},
+		"word": {
+			"type": "object",
+			"required": [
+				"word",
+				"start",
+				"end",
+				"score"
+			],
+			"properties": {
+				"word": {
+					"type": "string",
+					"minLength": 1
+				},
+				"start": {
+					"$ref": "#/$defs/start"
+				},
+				"end": {
+					"$ref": "#/$defs/start"
+				},
+				"score": {
+					"type": "number",
+					"minimum": 0
+				},
+				"speaker": {
+					"$ref": "#/$defs/speaker"
+				}
+			}
+		},
+		"words": {
+			"type": "array",
+			"minItems": 1,
+			"items": {
+				"$ref": "#/$defs/word"
+			}
+		}
+	},
+	"type": "object",
+	"required": [
+		"segments",
+		"language"
+	],
+	"properties": {
+		"segments": {
+			"type": "array",
+			"minItems": 1,
+			"items": {
+				"type": "object",
+				"required": ["start", "end", "text"],
+				"properties": {
+					"start": {
+						"$ref": "#/$defs/start"
+					},
+					"end": {
+						"$ref": "#/$defs/start"
+					},
+					"text": {
+						"type": "string",
+						"minLength": 1
+					},
+					"speaker": {
+						"$ref": "#/$defs/speaker"
+					},
+					"words": {
+						"$ref": "#/$defs/words"
+					}
+				}
+			}
+		},
+		"word_segments": {
+			"$ref": "#/$defs/words"
+		},
+		"language": {
+			"type": "string",
+			"minLength": 1
+		}
+	}
+}

@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WhisperX JSON Editor</title>
+<style>
+:root
+{
+	color-scheme: light dark ;
+}
+
+*,
+*::before,
+*::after
+{
+	box-sizing: border-box ;
+	margin: 0 ;
+	padding: 0 ;
+	font: inherit ;
+	color: inherit ;
+	font-size: 1em ;
+}
+
+html,
+input,
+select,
+textarea
+{
+	background: light-dark(#fbedd8, #141414) ;
+	color: light-dark(#141414, #fbedd8) ;
+}
+
+input,
+select,
+textarea
+{
+	font-family: monospace ;
+}
+
+html
+{
+	font-size: calc((100vw / 320) * 20) ;
+	font-family: system-ui, sans-serif ;
+
+	&:has(body:empty)
+	{
+		height: 100% ;
+		padding: .5em ;
+
+		> body
+		{
+			border: .5em dashed ;
+			height: 100% ;
+		}
+	}
+
+	@media (min-width: 375px)
+	{
+		font-size: calc((100vw / 375) * 20) ;
+	}
+
+	@media (min-width: 425px)
+	{
+		font-size: calc((100vw / 425) * 20) ;
+	}
+
+	@media (min-width: 768px)
+	{
+		font-size: calc((100vw / 768) * 20) ;
+	}
+
+	@media (min-width: 1024px)
+	{
+		font-size: calc((100vw / 1024) * 20) ;
+	}
+
+	@media (min-width: 1440px)
+	{
+		font-size: calc((100vw / 1440) * 16) ;
+	}
+
+	@media (min-width: 1920px)
+	{
+		font-size: 16px ;
+	}
+}
+
+form:not(:has(#speakers:checked)) span + input
+{
+	display: none ;
+}
+
+li li
+{
+	display: inline-block ;
+}
+li > ol
+{
+	display: inline-block ;
+}
+
+datalist + fieldset 
+{
+	position: sticky ;
+	top: 0 ;
+	background: light-dark(#fbedd8, #141414) ;
+}
+
+form:not(:has(.transcription input[name="bulk-action"]:checked)) .bulk-action
+{
+	display: none ;
+}
+
+.transcription
+{
+	display: grid ;
+	grid-template-columns: max-cotnent max-content max-content ;
+	grid-column-gap: 1em ;
+
+	> li
+	{
+		display: grid ;
+		grid-column: span 4 ;
+		grid-row: span 1 ;
+		grid-template-columns: subgrid ;
+		grid-template-rows: subgrid ;
+
+		> *
+		{
+			grid-row: auto ;
+		}
+
+		> input
+		{
+			grid-column: 1 ;
+		}
+
+		> time
+		{
+			grid-column: 2 ;
+
+			+ span
+			{
+				grid-column: 3 ;
+				text-align: right ;
+				
+				+ ol
+				{
+					grid-column: 4 ;
+				}
+			}
+		}
+	}
+}
+</style>
+</head>
+<body>
+<p>JS disabled or otherwise unable to run initialiser!</p>
+<script type="module">
+import {init} from './index.js';
+
+init(document.body);
+</script>
+</body>
+</html>

@@ -6,3 +6,11 @@ services:
         command: sleep infinity
         volumes:
             - ../../:/workspaces:cached
+    web-dev:
+        image: nginxinc/nginx-unprivileged:1.29-alpine
+        restart: unless-stopped
+        ports:
+            - '${PORT_WEB:-8000}:80'
+        volumes:
+            - ./web-dev.conf:/etc/nginx/conf.d/default.conf
+            - ../src/:/app/

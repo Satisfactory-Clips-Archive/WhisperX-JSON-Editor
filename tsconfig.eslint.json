@@ -1,6 +1,8 @@
 {
 	"extends": "./tsconfig.app",
+	"exclude": ["./src/*.js"],
 	"include": [
+		"./schema/*.ts",
 		"./src/*.ts",
 		"./tests/src/*.ts",
 		"./*.ts",

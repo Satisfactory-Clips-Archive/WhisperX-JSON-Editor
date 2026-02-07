@@ -1,9 +1,13 @@
 install:
 	@npm install
 
-build:
-	@echo 'building from ./tsconfig.app.json'
-	@./node_modules/.bin/tsc --project ./tsconfig.app.json
+build: rolldown
+
+rolldown:
+	@./node_modules/.bin/rolldown -c ./rolldown.config.ts
+
+rolldown--watch:
+	@./node_modules/.bin/rolldown -c ./rolldown.config.ts --watch
 
 lint--tsc:
 	@echo 'running syntax check'
