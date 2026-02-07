@@ -75,6 +75,8 @@ function init_ui(target: HTMLElement, whisperx: (
 			: [],
 	)];
 
+	const visibility = whisperx.segments.map(() => false);
+
 	const speaker_map: {[key in `SPEAKER_${number}`]: string} = {};
 
 	let changed = false;
@@ -198,6 +200,32 @@ function init_ui(target: HTMLElement, whisperx: (
 		}
 	});
 
+	const observer = new IntersectionObserver(
+		(entries) => {
+			for (const entry of entries) {
+				const into = entry.target as HTMLLIElement & {
+					dataset: {
+						i: `${number}`,
+						kStart: `${number}`,
+					},
+				};
+
+				const i = parseInt(into.dataset.i);
+
+				if (visibility[i] !== entry.isIntersecting) {
+					changed = true;
+				}
+
+				visibility[i] = entry.isIntersecting;
+			}
+
+			queue();
+		},
+		{
+			root: target,
+		} as IntersectionObserverInit,
+	);
+
 	function do_update() {
 		update(
 			target,
@@ -205,6 +233,8 @@ function init_ui(target: HTMLElement, whisperx: (
 			speakers,
 			speaker_map,
 			show_hide_speakers,
+			visibility,
+			observer,
 		);
 	}
 
@@ -256,7 +286,11 @@ function update(
 	speakers: `SPEAKER_${number}`[],
 	speaker_map: {[key in `SPEAKER_${number}`]: string},
 	show_hide_speakers: boolean,
+	visibility: boolean[],
+	observer: IntersectionObserver,
 ) {
+	observer.disconnect();
+
 	let k = 0;
 
 	const template = html`<main>
@@ -356,8 +390,20 @@ function update(
 			| undefined
 		);
 
-		return html`
-			<li>
+		const is_visible = visibility[i];
+
+		if (is_visible) {
+			console.log('is visible');
+		}
+
+		const result = html`
+			<li
+				data-i="${i}"
+				data-k-start="${k}"
+			>
+				${when(
+					visibility[i],
+					() => html`
 				<input
 					type="checkbox"
 					name="bulk-action"
@@ -392,11 +438,19 @@ function update(
 						word,
 						i,
 						j,
+						k,
 					),
 				)}
 				</ol>
+					`,
+					() => html`<span class="placeholder">&hellip;</span>`,
+				)}
 			</li>
 		`;
+
+		k += segment.words.length;
+
+		return result;
 	}
 
 	function render_word_item(
@@ -406,6 +460,7 @@ function update(
 		)['segments'][number]['words'][number],
 		i: number,
 		j: number,
+		k: number,
 	) {
 		return html`
 			<li>
@@ -438,6 +493,10 @@ function update(
 	}
 
 	render(template, target);
+
+	for (const element of target.querySelectorAll('li[data-k-start]')) {
+		observer.observe(element);
+	}
 }
 
 function init(target: HTMLElement) {
