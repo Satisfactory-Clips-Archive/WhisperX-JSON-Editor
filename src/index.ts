@@ -290,7 +290,7 @@ function update(
 
 	let k = 0;
 
-	const template = html`<main>
+	const template = html`
 		<form>
 			<datalist id="speaker-values">${repeat(
 				speakers,
@@ -356,7 +356,7 @@ function update(
 				</ol>
 			</fieldset>
 		</form>
-	</main>`;
+	`;
 
 	function render_segment_item(
 		segment: (

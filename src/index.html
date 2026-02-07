@@ -38,20 +38,37 @@ textarea
 	font-family: monospace ;
 }
 
+body
+{
+	display: flex ;
+	flex-direction: column ;
+	height: 100% ;
+}
+
+main
+{
+	flex: 1 ;
+	overflow-y: hidden ;
+}
+
+footer
+{
+	margin-top: 1em ;
+}
+
 html
 {
 	font-size: calc((100vw / 320) * 20) ;
 	font-family: system-ui, sans-serif ;
-
-	&:has(body:empty)
-	{
 		height: 100% ;
 		padding: .5em ;
 
-		> body
+	&:has(body > main:empty)
+	{
+
+		> body > main
 		{
 			border: .5em dashed ;
-			height: 100% ;
 		}
 	}
 
@@ -98,6 +115,7 @@ li li
 li > ol
 {
 	display: inline-block ;
+	word-break: break-word ;
 }
 
 datalist + fieldset
@@ -111,8 +129,9 @@ form
 {
 	display: flex ;
 	flex-direction: column ;
-	height: 100vh ;
-	overflow: hidden ;
+	overflow-y: hidden ;
+	height: 100% ;
+	width: 100% ;
 }
 
 form:not(:has(.transcription input[name="bulk-action"]:checked)) .bulk-action
@@ -122,13 +141,13 @@ form:not(:has(.transcription input[name="bulk-action"]:checked)) .bulk-action
 
 fieldset:has(.transcription)
 {
-	overflow: auto ;
+	overflow-y: auto ;
 }
 
 .transcription
 {
 	display: grid ;
-	grid-template-columns: max-content max-content max-content max-content ;
+	grid-template-columns: max-content max-content max-content 1fr ;
 	grid-column-gap: 1em ;
 
 	> li
@@ -138,6 +157,7 @@ fieldset:has(.transcription)
 		grid-row: span 1 ;
 		grid-template-columns: subgrid ;
 		grid-template-rows: subgrid ;
+		align-items: baseline ;
 
 		> *
 		{
@@ -169,11 +189,19 @@ fieldset:has(.transcription)
 </style>
 </head>
 <body>
+<main>
 <p>JS disabled or otherwise unable to run initialiser!</p>
 <script type="module">
 import {init} from './index.js';
 
-init(document.body);
+init(document.querySelector('main'));
 </script>
+</main>
+<footer>
+	<p>GUI editor for WhisperX JSON documents.</p>
+	<p>&copy; SignpostMarv 2026</p>
+	<p><a href="https://github.com/sponsors/SignpostMarv">Sponsor on GitHub</a></p>
+	<p><a href="https://github.com/Satisfactory-Clips-Archive/WhisperX-JSON-Editor/issues">Report issues with / request features for this tool</a></p>
+</footer>
 </body>
 </html>
