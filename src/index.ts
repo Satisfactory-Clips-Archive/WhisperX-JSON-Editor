@@ -8,6 +8,11 @@ import {
 // eslint-disable-next-line imports/no-internal-modules
 } from 'lit-html/directives/repeat.js';
 
+import {
+	when,
+// eslint-disable-next-line imports/no-internal-modules
+} from 'lit-html/directives/when.js';
+
 import type {
 	segment_with_words,
 	with_speaker_and_words,
@@ -73,6 +78,7 @@ function init_ui(target: HTMLElement, whisperx: (
 	const speaker_map: {[key in `SPEAKER_${number}`]: string} = {};
 
 	let changed = false;
+	let show_hide_speakers = false;
 
 	const inputs: {
 		[key: string]: ((
@@ -92,6 +98,12 @@ function init_ui(target: HTMLElement, whisperx: (
 		} else if (e.target.matches('span[data-i][data-j]')) {
 			e.target.classList.add('changed');
 		}
+	};
+
+	inputs['#speakers'] = (e) => {
+		show_hide_speakers = (e.target as HTMLInputElement).checked;
+		changed = true;
+		queue();
 	};
 
 	target.addEventListener('input', (e) => {
@@ -186,7 +198,17 @@ function init_ui(target: HTMLElement, whisperx: (
 		}
 	});
 
-	update(target, whisperx, speakers, speaker_map);
+	function do_update() {
+		update(
+			target,
+			whisperx,
+			speakers,
+			speaker_map,
+			show_hide_speakers,
+		);
+	}
+
+	do_update();
 
 	let queued: number | undefined;
 
@@ -196,7 +218,7 @@ function init_ui(target: HTMLElement, whisperx: (
 		}
 
 		if (changed) {
-			update(target, whisperx, speakers, speaker_map);
+			do_update();
 			changed = false;
 			requestAnimationFrame(refresh);
 		}
@@ -219,6 +241,7 @@ function update(
 	),
 	speakers: `SPEAKER_${number}`[],
 	speaker_map: {[key in `SPEAKER_${number}`]: string},
+	show_hide_speakers: boolean,
 ) {
 	let k = 0;
 	render(html`<main>
@@ -353,6 +376,9 @@ function update(
 											data-j="${j}"
 											data-k="${k++}"
 										>${word.word}</span>
+										${when(
+											show_hide_speakers,
+											() => html`
 										<input
 											id="speaker_${i}_${j}"
 											list="speaker-values"
@@ -366,6 +392,8 @@ function update(
 													: ''
 											}"
 										>
+											`,
+										)}
 									</li>
 									`,
 								)}
