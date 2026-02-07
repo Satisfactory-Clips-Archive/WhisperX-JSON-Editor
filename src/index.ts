@@ -332,8 +332,8 @@ function update(
 							.sort(([, a], [, b]) => b - a);
 
 						const overall_speaker = (sorted[0] || [])[0] as (
-								| `SPEAKER_${number}`
-								| undefined
+							| `SPEAKER_${number}`
+							| undefined
 						);
 
 						return html`
@@ -379,19 +379,19 @@ function update(
 										${when(
 											show_hide_speakers,
 											() => html`
-										<input
-											id="speaker_${i}_${j}"
-											list="speaker-values"
-											.value="${
-												'speaker' in word
-													? (
-														speaker_map[
-															word.speaker
-														] || word.speaker
-													)
-													: ''
-											}"
-										>
+												<input
+													id="speaker_${i}_${j}"
+													list="speaker-values"
+													.value="${
+														'speaker' in word
+															? (
+																speaker_map[
+																	word.speaker
+																] || word.speaker
+															)
+															: ''
+													}"
+												>
 											`,
 										)}
 									</li>
