@@ -89,7 +89,6 @@ function init_ui(target: HTMLElement, whisperx: (
 	} = {};
 
 	inputs['input[name="speaker-map[]"]'] = (e) => {
-		if (e.target.matches('input[name="speaker-map[]"]')) {
 			speaker_map[(
 				e.target.dataset as {
 					was: `SPEAKER_${number}`,
@@ -97,9 +96,24 @@ function init_ui(target: HTMLElement, whisperx: (
 			).was] = (e.target as HTMLInputElement).value;
 			changed = true;
 			queue();
-		} else if (e.target.matches('span[data-i][data-j]')) {
-			e.target.classList.add('changed');
-		}
+	};
+
+	inputs['span[data-i][data-j][data-k-start][contenteditable]'] = (e) => {
+		const dataset = e.target.dataset as {
+			i: `${number}`,
+			j: `${number}`,
+			kStart: `${number}`,
+		};
+
+		const i = parseInt(dataset.i);
+		const j = parseInt(dataset.j);
+		const k = parseInt(dataset.kStart) + j;
+
+		whisperx.segments[i].words[j].word = e.target.textContent;
+		whisperx.segments[i].text = whisperx.segments[i].words.map(
+			({word}) => word,
+		).join(' ');
+		whisperx.word_segments[k].word = e.target.textContent;
 	};
 
 	inputs['#speakers'] = (e) => {
@@ -125,24 +139,7 @@ function init_ui(target: HTMLElement, whisperx: (
 	} = {};
 
 	clicks['button[data-action="download"]'] = () => {
-		const changed_items: NodeListOf<
-			HTMLSpanElement & {
-				dataset: {
-					i: `${number}`,
-					j: `${number}`,
-					k: `${number}`,
-				},
-			}
-		> = target.querySelectorAll('span[data-i][data-j][data-k].changed');
-		for (const changed of changed_items) {
-			const i = parseInt(changed.dataset.i);
-			const j = parseInt(changed.dataset.j);
-			const k = parseInt(changed.dataset.k);
-			whisperx.segments[i].words[j].word = changed.textContent;
-			whisperx.word_segments[k].word = changed.textContent;
-		}
-
-		const data = JSON.stringify(whisperx, null, '\t');
+		const data = JSON.stringify(whisperx, null, '\t') + '\n';
 		const blob = new Blob([data], {type: 'application/json'});
 		const url = URL.createObjectURL(blob);
 
@@ -396,6 +393,8 @@ function update(
 			console.log('is visible');
 		}
 
+		const k_start = k;
+
 		const result = html`
 			<li
 				data-i="${i}"
@@ -438,7 +437,7 @@ function update(
 						word,
 						i,
 						j,
-						k,
+						k_start,
 					),
 				)}
 				</ol>
@@ -468,7 +467,7 @@ function update(
 					contenteditable
 					data-i="${i}"
 					data-j="${j}"
-					data-k="${k++}"
+					data-k-start="${k}"
 				>${word.word}</span>
 				${when(
 					show_hide_speakers,
