@@ -409,6 +409,8 @@ function update(
 							value="${i}"
 							aria-label="Bulk Action"
 						>
+					`,
+				)}
 						<time
 							datetime="PT${segment.start}S"
 						>${
@@ -441,9 +443,6 @@ function update(
 							),
 						)}
 						</ol>
-					`,
-					() => html`<span class="placeholder">&hellip;</span>`,
-				)}
 			</li>
 		`;
 
@@ -470,7 +469,7 @@ function update(
 					data-k-start="${k}"
 				>${word.word}</span>
 				${when(
-					show_hide_speakers,
+					show_hide_speakers && visibility[i],
 					() => html`
 						<input
 							id="speaker_${i}_${j}"
