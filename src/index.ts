@@ -233,6 +233,20 @@ function init_ui(target: HTMLElement, whisperx: (
 	}
 }
 
+function render_speaker_map_item(speaker: `SPEAKER_${number}`, i: number) {
+	return html`<li>
+									<label for="speaker-map-${i}">${
+										speaker
+									}</label>
+									<input
+										name="speaker-map[]"
+										id="speaker-map-${i}"
+										data-was="${speaker}"
+										value="${speaker}"
+									>
+								</li>`;
+}
+
 function update(
 	target: HTMLElement,
 	whisperx: (
@@ -244,7 +258,8 @@ function update(
 	show_hide_speakers: boolean,
 ) {
 	let k = 0;
-	render(html`<main>
+
+	const template = html`<main>
 		<form>
 			<datalist id="speaker-values">${repeat(
 				speakers,
@@ -264,17 +279,7 @@ function update(
 							<ol>${repeat(
 								speakers,
 								(speaker) => speakers.indexOf(speaker),
-								(speaker, i) => html`<li>
-									<label for="speaker-map-${i}">${
-										speaker
-									}</label>
-									<input
-										name="speaker-map[]"
-										id="speaker-map-${i}"
-										data-was="${speaker}"
-										value="${speaker}"
-									>
-								</li>`,
+								render_speaker_map_item,
 							)}</ol>
 						</details>
 					</li>
@@ -315,7 +320,20 @@ function update(
 					) => (
 						whisperx.segments as segment_with_words[]
 					).indexOf(segment as segment_with_words),
-					(segment, i) => {
+					render_segment_item,
+				)}
+				</ol>
+			</fieldset>
+		</form>
+	</main>`;
+
+	function render_segment_item(
+		segment: (
+			| with_words
+			| with_speaker_and_words
+		)['segments'][number],
+		i: number,
+	) {
 						const sorted = Object.entries(segment.words
 							.reduce((
 								was,
@@ -368,7 +386,26 @@ function update(
 									}::${
 										segment.words.indexOf(word)
 									}`,
-									(word, j) => html`
+									(word, j) => render_word_item(
+										word,
+										i,
+										j,
+									),
+								)}
+								</ol>
+							</li>
+							`;
+	}
+
+	function render_word_item(
+		word: (
+			| with_words
+			| with_speaker_and_words
+		)['segments'][number]['words'][number],
+		i: number,
+		j: number,
+	) {
+		return html`
 									<li>
 										<span
 											contenteditable
@@ -395,17 +432,10 @@ function update(
 											`,
 										)}
 									</li>
-									`,
-								)}
-								</ol>
-							</li>
-							`;
-					},
-				)}
-				</ol>
-			</fieldset>
-		</form>
-	</main>`, target);
+									`;
+	}
+
+	render(template, target);
 }
 
 function init(target: HTMLElement) {
