@@ -74,22 +74,53 @@ function init_ui(target: HTMLElement, whisperx: (
 
 	let changed = false;
 
-	target.addEventListener('input', (e) => {
+	const inputs: {
+		[key: string]: ((
+			e: Event & {target: HTMLElement},
+		) => void),
+	} = {};
+
+	inputs['input[name="speaker-map[]"]'] = (e) => {
 		if (e.target.matches('input[name="speaker-map[]"]')) {
-			speaker_map[e.target.dataset.was] = e.target.value;
+			speaker_map[(
+				e.target.dataset as {
+					was: `SPEAKER_${number}`,
+				}
+			).was] = (e.target as HTMLInputElement).value;
 			changed = true;
 			queue();
 		} else if (e.target.matches('span[data-i][data-j]')) {
 			e.target.classList.add('changed');
 		}
-	})
+	};
 
-	target.addEventListener('click', (e) => {
-		if (!e.target.matches('button[data-action="download"]')) {
-			return;
+	target.addEventListener('input', (e) => {
+		const target = e.target as HTMLElement;
+
+		for (const selector of Object.keys(inputs)) {
+			if (target.matches(selector)) {
+				inputs[selector](e as Event & {target: HTMLElement});
+			}
 		}
+	});
 
-		for (const changed of target.querySelectorAll('span[data-i][data-j][data-k].changed')) {
+	const clicks: {
+		[key: string]: ((
+			e: PointerEvent & {target: HTMLElement},
+		) => void),
+	} = {};
+
+	clicks['button[data-action="download"]'] = () => {
+		const changed_items: NodeListOf<
+			HTMLSpanElement & {
+				dataset: {
+					i: `${number}`,
+					j: `${number}`,
+					k: `${number}`,
+				},
+			}
+		> = target.querySelectorAll('span[data-i][data-j][data-k].changed');
+		for (const changed of changed_items) {
 			const i = parseInt(changed.dataset.i);
 			const j = parseInt(changed.dataset.j);
 			const k = parseInt(changed.dataset.k);
@@ -106,39 +137,58 @@ function init_ui(target: HTMLElement, whisperx: (
 		a.download = 'whisperx.json';
 		a.click();
 		URL.revokeObjectURL(url);
-	})
+	};
 
-	target.addEventListener('click', (e) => {
-		if (!e.target.matches('button[data-action="bulk-set-speaker"]')) {
-			return;
-		}
+	clicks['button[data-action="bulk-set-speaker"]'] = () => {
+		const value = (
+			target.querySelector('#bulk-set-speaker') as HTMLInputElement
+		).value as `SPEAKER_${number}`;
 
-		const value = target.querySelector('#bulk-set-speaker').value;
+		const speakers: NodeListOf<
+			HTMLInputElement
+		> = target.querySelectorAll('input[name="bulk-action"]:checked');
 
-		const speakers = target.querySelectorAll('input[name="bulk-action"]:checked');
-		
 		for (const checkbox of speakers) {
 			const i = parseInt(checkbox.value);
-			const ks = [...checkbox.parentNode.querySelectorAll('[data-k]')].map((e) => parseInt(e.dataset.k))
+			const k_siblings: NodeListOf<HTMLSpanElement> = (
+				checkbox.parentNode as HTMLLIElement
+			).querySelectorAll('[data-k]');
+			const ks = [
+				...k_siblings,
+			].map((e) => parseInt(e.dataset.k || '0'));
 
-			whisperx.segments[i].speaker = value;
+			(
+				whisperx as with_speaker_and_words
+			).segments[i].speaker = value;
 			for (const word of whisperx.segments[i].words) {
-				word.speaker = value;
+				(word as word_with_speaker).speaker = value;
 			}
 
 			for (const k of ks) {
-				whisperx.word_segments[k].speaker = value;
+				(
+					whisperx.word_segments[k] as word_with_speaker
+				).speaker = value;
 			}
 		}
 
 		changed = true;
 
 		queue();
-	})
+	};
+
+	target.addEventListener('click', (e) => {
+		const target = e.target as HTMLElement;
+
+		for (const selector of Object.keys(clicks)) {
+			if (target.matches(selector)) {
+				clicks[selector](e as PointerEvent & {target: HTMLElement});
+			}
+		}
+	});
 
 	update(target, whisperx, speakers, speaker_map);
 
-	let queued;
+	let queued: number | undefined;
 
 	function refresh() {
 		if (queued) {
@@ -150,7 +200,7 @@ function init_ui(target: HTMLElement, whisperx: (
 			changed = false;
 			requestAnimationFrame(refresh);
 		}
-	};
+	}
 
 	function queue() {
 		if (queued) {
@@ -167,7 +217,7 @@ function update(
 		| with_words
 		| with_speaker_and_words
 	),
-	speakers: string[],
+	speakers: `SPEAKER_${number}`[],
 	speaker_map: {[key in `SPEAKER_${number}`]: string},
 ) {
 	let k = 0;
@@ -192,14 +242,16 @@ function update(
 								speakers,
 								(speaker) => speakers.indexOf(speaker),
 								(speaker, i) => html`<li>
-									<label for="speaker-map-${i}">${speaker}</label>
+									<label for="speaker-map-${i}">${
+										speaker
+									}</label>
 									<input
 										name="speaker-map[]"
 										id="speaker-map-${i}"
 										data-was="${speaker}"
 										value="${speaker}"
 									>
-								</li>`
+								</li>`,
 							)}</ol>
 						</details>
 					</li>
@@ -208,17 +260,26 @@ function update(
 						<select id="bulk-set-speaker">
 						${repeat(
 							speakers,
-							(speaker) => `bulk-set-speaker-${speakers.indexOf(speaker)}`,
-							(speaker, i) => html`<option value="${
+							(speaker) => `bulk-set-speaker-${
+								speakers.indexOf(speaker)
+							}`,
+							(speaker) => html`<option value="${
 								speaker
 							}">${
 								speaker_map[speaker] || speaker
-							}</option>`
+							}</option>`,
 						)}
 						</select>
-						<button type="button" data-action="bulk-set-speaker" aria-label="Bulk Set Speaker">🗣️</button>
+						<button
+							type="button"
+							data-action="bulk-set-speaker"
+							aria-label="Bulk Set Speaker"
+						>🗣️</button>
 					</li>
-					<li><button type="button" data-action="download">💾</button></li>
+					<li><button
+						type="button"
+						data-action="download"
+					>💾</button></li>
 				</ol>
 			</fieldset>
 			<fieldset>
@@ -233,12 +294,22 @@ function update(
 					).indexOf(segment as segment_with_words),
 					(segment, i) => {
 						const overall_speaker = Object.entries(segment.words
-							.reduce((was, is) => {
-								was[is.speaker || ''] += 1;
+							.reduce((
+								was,
+								is,
+							): {[key: `SPEAKER_${number}`]: number} => {
+								if (!('speaker' in is)) {
+									return was;
+								}
+
+								was[(is as word_with_speaker).speaker] += 1;
 
 								return was;
 							}, {}))
-							.sort(([, a], [, b]) => b - a)[0][0];
+							.sort(([, a], [, b]) => b - a)[0][0] as (
+								| `SPEAKER_${number}`
+								| undefined
+						);
 
 						return html`
 							<li>
@@ -254,14 +325,24 @@ function update(
 									time_to_timestamp(segment.start)
 								}</time>
 								<span>${
-									speaker_map[overall_speaker] || overall_speaker
+									(
+										overall_speaker
+											? speaker_map[overall_speaker]
+											: undefined
+									) || overall_speaker
 								}: </span>
 								<ol>
 								${repeat(
-									segment.words,
+									segment.words as unknown as (
+										word_with_speaker[]
+									),
 									(
 										word,
-									) => `${i}::${segment.words.indexOf(word)}`,
+									) => `${
+										i
+									}::${
+										segment.words.indexOf(word)
+									}`,
 									(word, j) => html`
 									<li>
 										<span
@@ -275,7 +356,11 @@ function update(
 											list="speaker-values"
 											.value="${
 												'speaker' in word
-													? (speaker_map[word.speaker] || word.speaker)
+													? (
+														speaker_map[
+															word.speaker
+														] || word.speaker
+													)
 													: ''
 											}"
 										>
