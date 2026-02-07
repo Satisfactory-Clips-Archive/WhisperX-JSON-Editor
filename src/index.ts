@@ -89,13 +89,13 @@ function init_ui(target: HTMLElement, whisperx: (
 	} = {};
 
 	inputs['input[name="speaker-map[]"]'] = (e) => {
-			speaker_map[(
-				e.target.dataset as {
-					was: `SPEAKER_${number}`,
-				}
-			).was] = (e.target as HTMLInputElement).value;
-			changed = true;
-			queue();
+		speaker_map[(
+			e.target.dataset as {
+				was: `SPEAKER_${number}`,
+			}
+		).was] = (e.target as HTMLInputElement).value;
+		changed = true;
+		queue();
 	};
 
 	inputs['span[data-i][data-j][data-k-start][contenteditable]'] = (e) => {
@@ -403,44 +403,44 @@ function update(
 				${when(
 					visibility[i],
 					() => html`
-				<input
-					type="checkbox"
-					name="bulk-action"
-					value="${i}"
-					aria-label="Bulk Action"
-				>
-				<time
-					datetime="PT${segment.start}S"
-				>${
-					time_to_timestamp(segment.start)
-				}</time>
-				<span>${
-					(
-						overall_speaker
-							? speaker_map[overall_speaker]
-							: undefined
-					) || overall_speaker
-				}: </span>
-				<ol>
-				${repeat(
-					segment.words as unknown as (
-						word_with_speaker[]
-					),
-					(
-						word,
-					) => `${
-						i
-					}::${
-						segment.words.indexOf(word)
-					}`,
-					(word, j) => render_word_item(
-						word,
-						i,
-						j,
-						k_start,
-					),
-				)}
-				</ol>
+						<input
+							type="checkbox"
+							name="bulk-action"
+							value="${i}"
+							aria-label="Bulk Action"
+						>
+						<time
+							datetime="PT${segment.start}S"
+						>${
+							time_to_timestamp(segment.start)
+						}</time>
+						<span>${
+							(
+								overall_speaker
+									? speaker_map[overall_speaker]
+									: undefined
+							) || overall_speaker
+						}: </span>
+						<ol>
+						${repeat(
+							segment.words as unknown as (
+								word_with_speaker[]
+							),
+							(
+								word,
+							) => `${
+								i
+							}::${
+								segment.words.indexOf(word)
+							}`,
+							(word, j) => render_word_item(
+								word,
+								i,
+								j,
+								k_start,
+							),
+						)}
+						</ol>
 					`,
 					() => html`<span class="placeholder">&hellip;</span>`,
 				)}
