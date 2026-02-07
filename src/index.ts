@@ -425,7 +425,10 @@ function init(target: HTMLElement) {
 		if (1 === items.length) {
 			void check(items[0])
 				.then((res) => init_ui(target, res))
-				.catch((err) => alert(err));
+				.catch((err) => {
+					console.error(err);
+					alert(err);
+				});
 		}
 	});
 	target.addEventListener('dragover', (e) => {
