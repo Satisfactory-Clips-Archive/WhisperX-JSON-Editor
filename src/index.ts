@@ -235,16 +235,16 @@ function init_ui(target: HTMLElement, whisperx: (
 
 function render_speaker_map_item(speaker: `SPEAKER_${number}`, i: number) {
 	return html`<li>
-									<label for="speaker-map-${i}">${
-										speaker
-									}</label>
-									<input
-										name="speaker-map[]"
-										id="speaker-map-${i}"
-										data-was="${speaker}"
-										value="${speaker}"
-									>
-								</li>`;
+		<label for="speaker-map-${i}">${
+			speaker
+		}</label>
+		<input
+			name="speaker-map[]"
+			id="speaker-map-${i}"
+			data-was="${speaker}"
+			value="${speaker}"
+		>
+	</li>`;
 }
 
 function update(
