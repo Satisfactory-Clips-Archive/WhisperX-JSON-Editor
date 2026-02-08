@@ -501,6 +501,13 @@ function update(
 									data-action="next-result"
 									title="Scroll to next result"
 								>⬇️</button>
+								<label>
+									<input
+										type="checkbox"
+										name="hide-not-matched"
+									>
+									Hide not matched
+								</label>
 							`,
 						)}</output>
 					</li>
@@ -579,12 +586,14 @@ function update(
 
 		const k_start = k;
 
+		const has_k = segment.words.map((_, j_index) => k + j_index);
+
 		const result = html`
 			<li
 				data-i="${i}"
 				data-k-start="${k}"
 				data-has-k="${
-					segment.words.map((_, j_index) => k + j_index).join(' ')
+					has_k.join(' ')
 				}"
 			>
 				${when(
@@ -599,7 +608,13 @@ function update(
 					`,
 				)}
 				${when(
-					visibility[i] || verbose_render,
+					(
+						visibility[i]
+						|| verbose_render
+						|| has_k.find((
+							maybe,
+						) => search.results.includes(maybe))
+					),
 					() => html`
 						<time
 							datetime="PT${segment.start}S"
