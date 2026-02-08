@@ -81,6 +81,7 @@ function init_ui(target: HTMLElement, whisperx: (
 
 	let changed = false;
 	let show_hide_speakers = false;
+	let verbose_render = false;
 
 	const inputs: {
 		[key: string]: ((
@@ -118,6 +119,11 @@ function init_ui(target: HTMLElement, whisperx: (
 
 	inputs['#speakers'] = (e) => {
 		show_hide_speakers = (e.target as HTMLInputElement).checked;
+		changed = true;
+		queue();
+	};
+	inputs['#verbose'] = (e) => {
+		verbose_render = (e.target as HTMLInputElement).checked;
 		changed = true;
 		queue();
 	};
@@ -229,7 +235,10 @@ function init_ui(target: HTMLElement, whisperx: (
 			whisperx,
 			speakers,
 			speaker_map,
-			show_hide_speakers,
+			{
+				show_hide_speakers,
+				verbose_render,
+			},
 			visibility,
 			observer,
 		);
@@ -282,13 +291,40 @@ function update(
 	),
 	speakers: `SPEAKER_${number}`[],
 	speaker_map: {[key in `SPEAKER_${number}`]: string},
-	show_hide_speakers: boolean,
+	{
+		show_hide_speakers,
+		verbose_render,
+	}: {[key: string]: boolean},
 	visibility: boolean[],
 	observer: IntersectionObserver,
 ) {
 	observer.disconnect();
 
 	let k = 0;
+
+	const render_verbose = html`
+		<li>
+			<input type="checkbox" id="verbose">
+			<label for="verbose">Verbose Render</label>
+			<button
+				popovertarget="help--verbose"
+				title="What is Verbose Render?"
+				type="button"
+			>ℹ️</button>
+			<div
+				id="help--verbose"
+				popover
+			>
+				<p>${
+					'Transcriptions will be rendered outside of the viewport.'
+				}</p>
+				<p>${
+					// eslint-disable-next-line @stylistic/max-len
+					'This is required to make find-as-you-type useful, but has a serious performance impact for lengthy transcriptions.'
+				}</p>
+			</div>
+		</li>
+	`;
 
 	const template = html`
 		<form>
@@ -299,10 +335,15 @@ function update(
 			)}</datalist>
 			<fieldset>
 				<legend>Options</legend>
-				<ol>
+				<ul>
 					<li>
+						<ul>
+							<li>
 						<input type="checkbox" id="speakers">
 						<label for="speakers">Show / Hide Speakers</label>
+							</li>
+							${render_verbose}
+						</ul>
 					</li>
 					<li>
 						<details>
@@ -339,7 +380,7 @@ function update(
 						type="button"
 						data-action="download"
 					>💾</button></li>
-				</ol>
+				</ul>
 			</fieldset>
 			<fieldset>
 				<legend>Text</legend>
@@ -411,6 +452,9 @@ function update(
 						>
 					`,
 				)}
+				${when(
+					visibility[i] || verbose_render,
+					() => html`
 						<time
 							datetime="PT${segment.start}S"
 						>${
@@ -443,6 +487,9 @@ function update(
 							),
 						)}
 						</ol>
+					`,
+					() => html`<span class="placeholder">&hellip;</span>`,
+				)}
 			</li>
 		`;
 
