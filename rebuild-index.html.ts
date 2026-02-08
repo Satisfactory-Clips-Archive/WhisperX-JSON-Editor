@@ -248,8 +248,13 @@ init(document.querySelector('main'));
 <footer>
 	<p>GUI editor for WhisperX JSON documents.</p>
 	<p>&copy; SignpostMarv 2026</p>
-	<p><a href="https://github.com/sponsors/SignpostMarv">Sponsor on GitHub</a></p>
-	<p><a href="https://github.com/Satisfactory-Clips-Archive/WhisperX-JSON-Editor/issues">Report issues with / request features for this tool</a></p>
+	<p><a href="${
+		'https://github.com/sponsors/SignpostMarv'
+	}">Sponsor on GitHub</a></p>
+	<p><a href="${
+		// eslint-disable-next-line @stylistic/max-len
+		'https://github.com/Satisfactory-Clips-Archive/WhisperX-JSON-Editor/issues'
+	}">Report issues with / request features for this tool</a></p>
 </footer>
 </body>
 </html>
