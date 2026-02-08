@@ -5,3 +5,4 @@
 /.eslintcache
 /coverage/
 /.devcontainer/.env
+/src/index.html

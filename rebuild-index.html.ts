@@ -1,3 +1,13 @@
+import {
+	createHash,
+} from 'node:crypto';
+
+import {
+	readFile,
+	writeFile,
+} from 'node:fs/promises';
+
+const contents = `
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -226,7 +236,11 @@ fieldset:has(.transcription)
 <main>
 <p>JS disabled or otherwise unable to run initialiser!</p>
 <script type="module">
-import {init} from './index.js';
+import {init} from './index.js?h=${
+	createHash('sha512')
+		.update(await readFile(`${import.meta.dirname}/src/index.js`))
+		.digest('hex')
+}';
 
 init(document.querySelector('main'));
 </script>
@@ -239,3 +253,9 @@ init(document.querySelector('main'));
 </footer>
 </body>
 </html>
+`.trim();
+
+await writeFile(`${import.meta.dirname}/src/index.html`, contents);
+
+export {
+};

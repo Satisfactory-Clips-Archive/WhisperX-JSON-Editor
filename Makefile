@@ -2,6 +2,7 @@ install:
 	@npm install
 
 build: rolldown
+	@node ./rebuild-index.html.ts
 
 rolldown:
 	@./node_modules/.bin/rolldown -c ./rolldown.config.ts
