@@ -117,6 +117,27 @@ function init_ui(target: HTMLElement, whisperx: (
 		whisperx.word_segments[k].word = e.target.textContent;
 	};
 
+	inputs['input[list="speaker-values"]'] = (e) => {
+		const target = e.target as HTMLInputElement;
+
+		const dataset = target.dataset as {
+			i: `${number}`,
+			j: `${number}`,
+			kStart: `${number}`,
+		};
+
+		const i = parseInt(dataset.i);
+		const j = parseInt(dataset.j);
+		const k = parseInt(dataset.kStart) + j;
+
+		(
+			whisperx.segments[i].words[j] as word_with_speaker
+		).speaker = target.value as word_with_speaker['speaker'];
+		(
+			whisperx.word_segments[k] as word_with_speaker
+		).speaker = target.value as word_with_speaker['speaker'];
+	};
+
 	inputs['#speakers'] = (e) => {
 		show_hide_speakers = (e.target as HTMLInputElement).checked;
 		changed = true;
@@ -521,6 +542,9 @@ function update(
 						<input
 							id="speaker_${i}_${j}"
 							list="speaker-values"
+							data-i="${i}"
+							data-j="${j}"
+							data-k-start="${k}"
 							.value="${
 								'speaker' in word
 									? (
