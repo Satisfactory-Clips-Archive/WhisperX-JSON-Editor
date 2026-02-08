@@ -136,6 +136,9 @@ function init_ui(target: HTMLElement, whisperx: (
 		(
 			whisperx.word_segments[k] as word_with_speaker
 		).speaker = target.value as word_with_speaker['speaker'];
+
+		changed = true;
+		queue();
 	};
 
 	inputs['#speakers'] = (e) => {
