@@ -463,12 +463,6 @@ function update(
 			| undefined
 		);
 
-		const is_visible = visibility[i];
-
-		if (is_visible) {
-			console.log('is visible');
-		}
-
 		const k_start = k;
 
 		const result = html`
