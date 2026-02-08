@@ -453,8 +453,10 @@ function update(
 					<li>
 						<ul>
 							<li>
-						<input type="checkbox" id="speakers">
-						<label for="speakers">Show / Hide Speakers</label>
+								<input type="checkbox" id="speakers">
+								<label for="speakers">${
+									'Show / Hide Speakers'
+								}</label>
 							</li>
 							${render_verbose}
 						</ul>
