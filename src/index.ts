@@ -290,7 +290,7 @@ function init_ui(target: HTMLElement, whisperx: (
 	}
 }
 
-function render_speaker_map_item(speaker: `SPEAKER_${number}`, i: number) {
+function render_speaker_map_item([speaker, i]: [`SPEAKER_${number}`, number]) {
 	return html`<li>
 		<label for="speaker-map-${i}">${
 			speaker
@@ -370,8 +370,19 @@ function update(
 						<details>
 							<summary>Speaker Map</summary>
 							<ol>${repeat(
-								speakers,
-								(speaker) => speakers.indexOf(speaker),
+								speakers
+									.map((
+										value,
+										index,
+									): [
+										`SPEAKER_${number}`,
+										number,
+									] => [
+										value,
+										index,
+									])
+									.sort(([a], [b]) => a.localeCompare(b)),
+								([, index]) => `speaker-map-index-${index}`,
 								render_speaker_map_item,
 							)}</ol>
 						</details>
