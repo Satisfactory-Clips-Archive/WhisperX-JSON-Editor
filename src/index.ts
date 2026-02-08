@@ -164,6 +164,26 @@ function init_ui(target: HTMLElement, whisperx: (
 		defer_search();
 	};
 
+	let debounce_focus_on_time: number | undefined;
+
+	inputs['#focus-on-time'] = (e) => {
+		if (debounce_focus_on_time) {
+			cancelAnimationFrame(debounce_focus_on_time);
+		}
+		debounce_focus_on_time = requestAnimationFrame(() => {
+			const input = e.target as HTMLInputElement;
+			const focus_on = target.querySelector(
+				`.transcription > li[data-i="${input.value}"]`,
+			);
+
+			if (focus_on) {
+				focus_on.scrollIntoView();
+			} else {
+				console.log('could not find');
+			}
+		});
+	};
+
 	target.addEventListener('input', (e) => {
 		const target = e.target as HTMLElement;
 
@@ -460,6 +480,16 @@ function update(
 							</li>
 							${render_verbose}
 						</ul>
+					</li>
+					<li>
+						<label for="focus-on-time">Focus on time</label>
+						<input
+							type="range"
+							id="focus-on-time"
+							min="0"
+							max="${whisperx.segments.length - 1}"
+							value="0"
+						>
 					</li>
 					<li>
 						<details>
