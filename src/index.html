@@ -139,6 +139,21 @@ form:not(:has(.transcription input[name="bulk-action"]:checked)) .bulk-action
 	display: none ;
 }
 
+fieldset:not(:has(.transcription))
+{
+	ul ul
+	{
+		padding: .25em ;
+
+		li
+		{
+			padding: .25em ;
+			margin: .25em ;
+			border: 1px solid ;
+		}
+	}
+}
+
 fieldset:has(.transcription)
 {
 	overflow-y: auto ;
