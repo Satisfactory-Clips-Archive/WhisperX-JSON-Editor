@@ -13,6 +13,11 @@ import {
 // eslint-disable-next-line imports/no-internal-modules
 } from 'lit-html/directives/when.js';
 
+import {
+	classMap,
+// eslint-disable-next-line imports/no-internal-modules
+} from 'lit-html/directives/class-map.js';
+
 import type {
 	segment_with_words,
 	with_speaker_and_words,
@@ -83,6 +88,10 @@ function init_ui(target: HTMLElement, whisperx: (
 	let show_hide_speakers = false;
 	let verbose_render = false;
 
+	let last_query = '';
+	let results: number[] = [];
+	let current_result_index = 0;
+
 	const inputs: {
 		[key: string]: ((
 			e: Event & {target: HTMLElement},
@@ -151,6 +160,9 @@ function init_ui(target: HTMLElement, whisperx: (
 		changed = true;
 		queue();
 	};
+	inputs['#search'] = () => {
+		defer_search();
+	};
 
 	target.addEventListener('input', (e) => {
 		const target = e.target as HTMLElement;
@@ -217,6 +229,41 @@ function init_ui(target: HTMLElement, whisperx: (
 		queue();
 	};
 
+	clicks['button[data-action="search"]'] = () => {
+		do_search();
+	};
+
+	function focus_on_current_result() {
+		const result = target.querySelector(
+			`.transcription > li[data-has-k~="${
+				results[current_result_index]
+			}"]`,
+		);
+
+		if (result) {
+			result.scrollIntoView();
+		}
+	}
+
+	clicks['button[data-action="previous-result"]'] = () => {
+		current_result_index = (
+			current_result_index
+			- 1
+			+ results.length
+		) % results.length;
+
+		focus_on_current_result();
+	};
+
+	clicks['button[data-action="next-result"]'] = () => {
+		current_result_index = (
+			current_result_index
+			+ 1
+		) % results.length;
+
+		focus_on_current_result();
+	};
+
 	target.addEventListener('click', (e) => {
 		const target = e.target as HTMLElement;
 
@@ -263,6 +310,11 @@ function init_ui(target: HTMLElement, whisperx: (
 				show_hide_speakers,
 				verbose_render,
 			},
+			{
+				last_query,
+				results,
+				current_result_index,
+			},
 			visibility,
 			observer,
 		);
@@ -271,6 +323,8 @@ function init_ui(target: HTMLElement, whisperx: (
 	do_update();
 
 	let queued: number | undefined;
+
+	let deferred_search: number | undefined;
 
 	function refresh() {
 		if (queued) {
@@ -290,6 +344,37 @@ function init_ui(target: HTMLElement, whisperx: (
 		}
 
 		queued = requestAnimationFrame(() => refresh());
+	}
+
+	function defer_search() {
+		if (deferred_search) {
+			cancelAnimationFrame(deferred_search);
+		}
+		deferred_search = requestAnimationFrame(() => do_search());
+	}
+
+	function do_search() {
+		const current_query = (
+			target.querySelector('#search') as HTMLInputElement
+		).value.trim();
+
+		if (current_query !== last_query) {
+			last_query = current_query;
+			current_result_index = -1;
+			const lcase = last_query.toLowerCase();
+			const fresh_results: number[] = [];
+
+			whisperx.word_segments.forEach(({word}, k) => {
+				if (word.toLowerCase().includes(lcase)) {
+					fresh_results.push(k);
+				}
+			});
+
+			results = fresh_results;
+
+			changed = true;
+			queue();
+		}
 	}
 }
 
@@ -319,6 +404,11 @@ function update(
 		show_hide_speakers,
 		verbose_render,
 	}: {[key: string]: boolean},
+	search: {
+		last_query: string,
+		results: number[],
+		current_result_index: number,
+	},
 	visibility: boolean[],
 	observer: IntersectionObserver,
 ) {
@@ -389,6 +479,30 @@ function update(
 								render_speaker_map_item,
 							)}</ol>
 						</details>
+					</li>
+					<li>
+						<input type="search" id="search">
+						<button
+							type="button"
+							title="Search"
+							data-action="search"
+						>🔎</button>
+						<output for="search">${when(
+							'' !== search.last_query,
+							() => html`
+								${search.results.length} results found
+								<button
+									type="button"
+									data-action="previous-result"
+									title="Scroll to previous result"
+								>⬆️</button>
+								<button
+									type="button"
+									data-action="next-result"
+									title="Scroll to next result"
+								>⬇️</button>
+							`,
+						)}</output>
 					</li>
 					<li class="bulk-action">
 						<label for="bulk-set-speaker">Bulk Set Speaker</label>
@@ -469,6 +583,9 @@ function update(
 			<li
 				data-i="${i}"
 				data-k-start="${k}"
+				data-has-k="${
+					segment.words.map((_, j_index) => k + j_index).join(' ')
+				}"
 			>
 				${when(
 					visibility[i],
@@ -537,7 +654,11 @@ function update(
 		k: number,
 	) {
 		return html`
-			<li>
+			<li
+				class="${classMap({
+					'matches-search': search.results.includes(k + j),
+				})}"
+			>
 				<span
 					contenteditable
 					data-i="${i}"
