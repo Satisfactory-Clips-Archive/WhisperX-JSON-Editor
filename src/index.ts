@@ -831,10 +831,12 @@ function update(
 							aria-label="Bulk Replace Speaker"
 						>🗣️</button>
 					</li>
-					<li><button
-						type="button"
-						data-action="download"
-					>💾</button></li>
+					<li>
+						<button
+							type="button"
+							data-action="download"
+						>💾</button>
+					</li>
 				</ul>
 			</fieldset>
 			<fieldset>
