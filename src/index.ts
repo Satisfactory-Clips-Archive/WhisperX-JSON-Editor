@@ -746,7 +746,7 @@ function update(
 
 function init(target: HTMLElement) {
 	target.textContent = '';
-	target.addEventListener('drop', (e) => {
+	function drop(e: DragEvent) {
 		if (!e.dataTransfer) {
 			return;
 		}
@@ -760,14 +760,20 @@ function init(target: HTMLElement) {
 
 		if (1 === items.length) {
 			void check(items[0])
-				.then((res) => init_ui(target, res))
+				.then((res) => {
+					target.removeEventListener('drop', drop);
+					target.removeEventListener('dragover', dragover);
+					removeEventListener('drop', preventDefault);
+					removeEventListener('dragover', preventDefault);
+					init_ui(target, res);
+				})
 				.catch((err) => {
 					console.error(err);
 					alert(err);
 				});
 		}
-	});
-	target.addEventListener('dragover', (e) => {
+	}
+	function dragover(e: DragEvent) {
 		if (!e.dataTransfer) {
 			return;
 		}
@@ -779,9 +785,14 @@ function init(target: HTMLElement) {
 		if (1 === items.length) {
 			e.dataTransfer.dropEffect = 'copy';
 		}
-	});
-	addEventListener('drop', (e) => e.preventDefault());
-	addEventListener('dragover', (e) => e.preventDefault());
+	}
+	function preventDefault(e: Event) {
+		e.preventDefault();
+	}
+	target.addEventListener('drop', drop);
+	target.addEventListener('dragover', dragover);
+	addEventListener('drop', preventDefault);
+	addEventListener('dragover', preventDefault);
 }
 
 export {
