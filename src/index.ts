@@ -106,6 +106,21 @@ function init_ui(target: HTMLElement, whisperx: (
 			).word_segments
 				.filter((e): e is word_with_speaker => 'speaker' in e)
 				.map(({speaker}) => speaker)
+				.concat(
+					(
+						whisperx as with_speaker_and_words
+					).segments
+						.filter((maybe) => 'speaker' in maybe)
+						.map(({speaker}) => speaker),
+				)
+				.concat(
+					(
+						whisperx as with_speaker_and_words
+					).segments
+						.flatMap(({words}) => words)
+						.filter((maybe) => 'speaker' in maybe)
+						.map(({speaker}) => speaker),
+				)
 			: [],
 	)];
 
