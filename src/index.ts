@@ -681,7 +681,7 @@ function update(
 							name="bulk-action[]"
 							value="${i}"
 							aria-label="Bulk Action"
-							.checked=${bulk_action_checked.has(i)}
+							?checked=${bulk_action_checked.has(i)}
 						>
 					`,
 				)}
