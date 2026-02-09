@@ -400,6 +400,19 @@ function init_ui(target: HTMLElement, whisperx: (
 		do_search();
 	};
 
+	clicks['button[data-action="uncheck-bulk-action-checkboxes"]'] = () => {
+		bulk_action_checked.clear();
+		for (
+			const still_checked of target.querySelectorAll(
+				'input[name="bulk-action[]"]:checked',
+			)
+		) {
+			(still_checked as HTMLInputElement).checked = false;
+		}
+		changed = true;
+		queue();
+	};
+
 	function focus_on_current_result() {
 		const result = target.querySelector(
 			`.transcription > li[data-has-k~="${
@@ -835,7 +848,13 @@ function update(
 						<button
 							type="button"
 							data-action="download"
+							title="Download whisperx.json"
 						>💾</button>
+						<button
+							type="button"
+							data-action="uncheck-bulk-action-checkboxes"
+							title="Uncheck all bulk action checkboxes"
+						>✅🚫</button>
 					</li>
 				</ul>
 			</fieldset>
