@@ -91,6 +91,17 @@ function init_ui(target: HTMLElement, whisperx: (
 	let last_query = '';
 	let results: number[] = [];
 	let current_result_index = 0;
+	let shift_key = false;
+	let last_bulk_action_toggled = -1;
+
+	const bulk_action_checked = new Set<number>();
+
+	addEventListener('keydown', (e) => {
+		shift_key = e.shiftKey;
+	});
+	addEventListener('keyup', (e) => {
+		shift_key = e.shiftKey;
+	});
 
 	const inputs: {
 		[key: string]: ((
@@ -163,6 +174,36 @@ function init_ui(target: HTMLElement, whisperx: (
 	inputs['#search'] = () => {
 		defer_search();
 	};
+	inputs['input[name="bulk-action[]"'] = (e) => {
+		const target = e.target as HTMLInputElement;
+
+		const value = parseInt(target.value);
+
+		if (shift_key && last_bulk_action_toggled >= 0) {
+			const start = Math.min(last_bulk_action_toggled, value);
+			const end = Math.max(last_bulk_action_toggled, value);
+			if (target.checked) {
+				for (let i = start; i <= end; ++i) {
+					bulk_action_checked.add(i);
+				}
+			} else {
+				for (let i = start; i <= end; ++i) {
+					bulk_action_checked.delete(i);
+				}
+			}
+		} else {
+			if (target.checked) {
+				bulk_action_checked.delete(value);
+			} else {
+				bulk_action_checked.add(value);
+			}
+		}
+
+		last_bulk_action_toggled = value;
+
+		changed = true;
+		queue();
+	};
 
 	let debounce_focus_on_time: number | undefined;
 
@@ -219,7 +260,7 @@ function init_ui(target: HTMLElement, whisperx: (
 
 		const speakers: NodeListOf<
 			HTMLInputElement
-		> = target.querySelectorAll('input[name="bulk-action"]:checked');
+		> = target.querySelectorAll('input[name="bulk-action[]"]:checked');
 
 		for (const checkbox of speakers) {
 			const i = parseInt(checkbox.value);
@@ -336,6 +377,7 @@ function init_ui(target: HTMLElement, whisperx: (
 				current_result_index,
 			},
 			visibility,
+			bulk_action_checked,
 			observer,
 		);
 	}
@@ -430,6 +472,7 @@ function update(
 		current_result_index: number,
 	},
 	visibility: boolean[],
+	bulk_action_checked: Set<number>,
 	observer: IntersectionObserver,
 ) {
 	observer.disconnect();
@@ -629,13 +672,14 @@ function update(
 				}"
 			>
 				${when(
-					visibility[i],
+					visibility[i] || bulk_action_checked.has(i),
 					() => html`
 						<input
 							type="checkbox"
-							name="bulk-action"
+							name="bulk-action[]"
 							value="${i}"
 							aria-label="Bulk Action"
+							.checked=${bulk_action_checked.has(i)}
 						>
 					`,
 				)}
