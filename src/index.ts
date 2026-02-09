@@ -1,3 +1,6 @@
+// eslint-disable-next-line imports/no-internal-modules
+import type Ajv from 'ajv/dist/2020.js';
+
 import {
 	html,
 	render,
@@ -33,10 +36,21 @@ import {
 // eslint-disable-next-line imports/no-internal-modules, imports/no-relative-parent-imports
 } from '../schema/whisperx.ts';
 
-async function check(file: DataTransferItem): Promise<(
-	| with_words
-	| with_speaker_and_words
-)> {
+import type {
+	speaker_map,
+// eslint-disable-next-line @stylistic/max-len
+// eslint-disable-next-line imports/no-internal-modules, imports/no-relative-parent-imports
+} from '../schema/speaker-map.ts';
+import {
+	is_speaker_map,
+// eslint-disable-next-line @stylistic/max-len
+// eslint-disable-next-line imports/no-internal-modules, imports/no-relative-parent-imports
+} from '../schema/speaker-map.ts';
+
+async function check_against<T>(
+	file: DataTransferItem,
+	checker: ((value: unknown, ajv?: Ajv) => asserts value is T),
+): Promise<T> {
 	const as_file = file.getAsFile();
 
 	if (null === as_file) {
@@ -47,7 +61,16 @@ async function check(file: DataTransferItem): Promise<(
 
 	const json: unknown = await (await fetch(url)).json();
 
-	is_whisperx(json);
+	checker(json);
+
+	return json;
+}
+
+async function check_whisperx(file: DataTransferItem): Promise<(
+	| with_words
+	| with_speaker_and_words
+)> {
+	const json = await check_against(file, is_whisperx);
 
 	const type = determine_type(json);
 
@@ -56,6 +79,12 @@ async function check(file: DataTransferItem): Promise<(
 	}
 
 	return json as with_words | with_speaker_and_words;
+}
+
+async function check_speakermap(
+	file: DataTransferItem,
+): Promise<speaker_map> {
+	return check_against(file, is_speaker_map);
 }
 
 function time_to_timestamp(value: number) {
@@ -384,6 +413,47 @@ function init_ui(target: HTMLElement, whisperx: (
 
 	do_update();
 
+	make_droppable(
+		target.querySelector('#speaker-map'),
+		(e) => {
+			if (!e.dataTransfer) {
+				return;
+			}
+
+			e.preventDefault();
+
+			const items = [...e.dataTransfer.items || []].filter(
+				(item) => (
+					item.kind === 'file'
+					&& item.type === 'application/json'
+				),
+			);
+
+
+			if (1 === items.length) {
+				void check_speakermap(items[0])
+					.then((res) => {
+						for (
+							const [k, v] of Object.entries(res) as [
+								keyof typeof res,
+								string,
+							][]
+						) {
+							speaker_map[k] = v;
+						}
+
+						changed = true;
+						queue();
+					})
+					.catch((err) => {
+						console.error(err);
+						alert(err);
+					});
+			}
+		},
+		dragover,
+	);
+
 	let queued: number | undefined;
 
 	let deferred_search: number | undefined;
@@ -537,7 +607,7 @@ function update(
 						>
 					</li>
 					<li>
-						<details>
+						<details id="speaker-map">
 							<summary>Speaker Map</summary>
 							<ol>${repeat(
 								speakers
@@ -805,7 +875,7 @@ function init(target: HTMLElement) {
 
 
 		if (1 === items.length) {
-			void check(items[0])
+			void check_whisperx(items[0])
 				.then((res) => {
 					target.removeEventListener('drop', drop);
 					target.removeEventListener('dragover', dragover);
@@ -819,6 +889,25 @@ function init(target: HTMLElement) {
 				});
 		}
 	}
+
+	make_droppable(target, drop, dragover);
+}
+
+function make_droppable(
+	target: HTMLElement|null,
+	drop: (e: DragEvent) => void,
+	dragover: (e: DragEvent) => void,
+) {
+	if (!target) {
+		throw new Error('Target must not be null!');
+	}
+
+	target.addEventListener('drop', drop);
+	target.addEventListener('dragover', dragover);
+	addEventListener('drop', preventDefault);
+	addEventListener('dragover', preventDefault);
+}
+
 	function dragover(e: DragEvent) {
 		if (!e.dataTransfer) {
 			return;
@@ -835,11 +924,6 @@ function init(target: HTMLElement) {
 	function preventDefault(e: Event) {
 		e.preventDefault();
 	}
-	target.addEventListener('drop', drop);
-	target.addEventListener('dragover', dragover);
-	addEventListener('drop', preventDefault);
-	addEventListener('dragover', preventDefault);
-}
 
 export {
 	init,

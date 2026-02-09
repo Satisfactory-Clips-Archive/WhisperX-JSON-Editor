@@ -1,7 +1,11 @@
 // eslint-disable-next-line imports/no-internal-modules
-import Ajv from 'ajv/dist/2020.js';
+import type Ajv from 'ajv/dist/2020.js';
 
 import schema from './whisperx.json' with {type: 'json'};
+
+import {
+	default_ajv,
+} from './ajv.ts';
 
 type positive_number_or_zero<T extends number> = (
 	`${T}` extends `-${string}`
@@ -147,10 +151,7 @@ function determine_type(
 	return 'basic';
 }
 
-const default_validator = (new Ajv({
-	strict: true,
-	verbose: true,
-})).compile<(
+const default_validator = default_ajv.compile<(
 	| basic
 	| with_words
 	| with_speaker
@@ -191,6 +192,7 @@ export type {
 	with_speaker_and_words,
 	segment_with_words,
 	word_with_speaker,
+	speaker,
 };
 
 export {

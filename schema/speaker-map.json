@@ -1,0 +1,12 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "satisfactory-clips-archive/whisperx-json-format--speaker-map",
+	"type": "object",
+	"additionalProperties": false,
+	"patternProperties": {
+		"^SPEAKER_\\d{2,}$": {
+			"type": "string",
+			"minLength": 1
+		}
+	}
+}
