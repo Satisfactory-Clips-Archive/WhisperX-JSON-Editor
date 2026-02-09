@@ -908,22 +908,23 @@ function make_droppable(
 	addEventListener('dragover', preventDefault);
 }
 
-	function dragover(e: DragEvent) {
-		if (!e.dataTransfer) {
-			return;
-		}
-
-		const items = [...e.dataTransfer.items || []].filter(
-			(item) => item.kind === 'file' && item.type === 'application/json',
-		);
-
-		if (1 === items.length) {
-			e.dataTransfer.dropEffect = 'copy';
-		}
+function dragover(e: DragEvent) {
+	if (!e.dataTransfer) {
+		return;
 	}
-	function preventDefault(e: Event) {
-		e.preventDefault();
+
+	const items = [...e.dataTransfer.items || []].filter(
+		(item) => item.kind === 'file' && item.type === 'application/json',
+	);
+
+	if (1 === items.length) {
+		e.dataTransfer.dropEffect = 'copy';
 	}
+}
+
+function preventDefault(e: Event) {
+	e.preventDefault();
+}
 
 export {
 	init,
