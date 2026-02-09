@@ -346,6 +346,56 @@ function init_ui(target: HTMLElement, whisperx: (
 		queue();
 	};
 
+	clicks['button[data-action="bulk-replace-speaker"]'] = () => {
+		const replace_speaker = (
+			target.querySelector(
+				'#bulk-replace-speaker--replace',
+			) as HTMLInputElement
+		).value as `SPEAKER_${number}`;
+		const with_speaker = (
+			target.querySelector(
+				'#bulk-replace-speaker--with',
+			) as HTMLInputElement
+		).value as `SPEAKER_${number}`;
+
+		for (const i of bulk_action_checked) {
+			const node: HTMLLIElement | null = target.querySelector(
+				`[data-i="${i}"][data-has-k]`,
+			);
+
+			if (!node) {
+				throw new Error('Could not find node!');
+			}
+
+			const ks = (
+				node.dataset.hasK as string
+			).split(' ').map((e) => parseInt(e));
+
+			for (const entry of [
+				(
+					whisperx as with_speaker_and_words
+				).segments[i],
+				...(whisperx.segments[i].words as word_with_speaker[]),
+				...ks.map(
+					(k) => whisperx.word_segments[k] as word_with_speaker,
+				),
+			]) {
+				if (entry.speaker === replace_speaker) {
+					entry.speaker = with_speaker;
+					changed = true;
+				}
+			}
+
+			if (changed) {
+				queue();
+			}
+		}
+
+		changed = true;
+
+		queue();
+	};
+
 	clicks['button[data-action="search"]'] = () => {
 		do_search();
 	};
@@ -740,6 +790,45 @@ function update(
 							type="button"
 							data-action="bulk-set-speaker"
 							aria-label="Bulk Set Speaker"
+						>🗣️</button>
+					</li>
+					<li class="bulk-action">
+						<label
+							for="bulk-replace-speaker--replace"
+						>Bulk Replace Speaker</label>
+						<select id="bulk-replace-speaker--replace">
+						${repeat(
+							speakers,
+							(speaker) => `bulk-replace-speaker--replace-${
+								speakers.indexOf(speaker)
+							}`,
+							(speaker) => html`<option value="${
+								speaker
+							}">${
+								speaker_map[speaker] || speaker
+							}</option>`,
+						)}
+						</select>
+						<label
+							for="bulk-replace-speaker--with"
+						>With</label>
+						<select id="bulk-replace-speaker--with">
+						${repeat(
+							speakers,
+							(speaker) => `bulk-replace-speaker--with-${
+								speakers.indexOf(speaker)
+							}`,
+							(speaker) => html`<option value="${
+								speaker
+							}">${
+								speaker_map[speaker] || speaker
+							}</option>`,
+						)}
+						</select>
+						<button
+							type="button"
+							data-action="bulk-replace-speaker"
+							aria-label="Bulk Replace Speaker"
 						>🗣️</button>
 					</li>
 					<li><button
