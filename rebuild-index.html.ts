@@ -142,6 +142,14 @@ form
 	overflow-y: hidden ;
 	height: 100% ;
 	width: 100% ;
+
+	&:has(input[name="hide-not-matched"]:checked)
+	{
+		.transcription [data-has-k]:not(:has(.matches-search))
+		{
+			display: none ;
+		}
+	}
 }
 
 fieldset:not(:has(.transcription))
