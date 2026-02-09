@@ -174,7 +174,7 @@ function init_ui(target: HTMLElement, whisperx: (
 	inputs['#search'] = () => {
 		defer_search();
 	};
-	inputs['input[name="bulk-action[]"'] = (e) => {
+	inputs['input[name="bulk-action[]"]'] = (e) => {
 		const target = e.target as HTMLInputElement;
 
 		const value = parseInt(target.value);
