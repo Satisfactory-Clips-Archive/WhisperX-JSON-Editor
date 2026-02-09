@@ -622,9 +622,14 @@ function update(
 			'has-any-bulk-actions-checked': bulk_action_checked.size > 0,
 		})}">
 			<datalist id="speaker-values">${repeat(
-				speakers,
-				(speaker) => speakers.indexOf(speaker),
-				(speaker) => html`<option value="${speaker}" />`,
+				speakers
+					.map((
+						speaker,
+						index,
+					): [`SPEAKER_${number}`, number] => [speaker, index])
+					.sort(([a], [b]) => a.localeCompare(b)),
+				([, index]) => `speaker-values-datalist-${index}`,
+				([speaker]) => html`<option value="${speaker}" />`,
 			)}</datalist>
 			<fieldset>
 				<legend>Options</legend>
@@ -897,11 +902,7 @@ function update(
 							data-k-start="${k}"
 							.value="${
 								'speaker' in word
-									? (
-										speaker_map[
-											word.speaker
-										] || word.speaker
-									)
+									? word.speaker
 									: ''
 							}"
 						>
