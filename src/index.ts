@@ -517,7 +517,16 @@ function init_ui(target: HTMLElement, whisperx: (
 			target.querySelector('#search') as HTMLInputElement
 		).value.trim();
 
-		if (current_query !== last_query) {
+		if ('' === current_query) {
+			current_result_index = -1;
+			results = [];
+
+			if (current_query !== last_query) {
+				last_query = current_query;
+				changed = true;
+				queue();
+			}
+		} else if (current_query !== last_query) {
 			last_query = current_query;
 			current_result_index = -1;
 			const lcase = last_query.toLowerCase();
