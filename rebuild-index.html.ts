@@ -166,6 +166,16 @@ fieldset:not(:has(.transcription))
 			border: 1px solid ;
 		}
 	}
+
+	> ul > li:has(label:first-child + input[type="range"]:last-child)
+	{
+		display: flex ;
+
+		> input
+		{
+			flex: 1 ;
+		}
+	}
 }
 
 fieldset:has(.transcription)
