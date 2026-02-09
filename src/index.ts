@@ -282,6 +282,18 @@ function init_ui(target: HTMLElement, whisperx: (
 		URL.revokeObjectURL(url);
 	};
 
+	clicks['button[data-action="download-speaker-map"]'] = () => {
+		const data = JSON.stringify(speaker_map, null, '\t') + '\n';
+		const blob = new Blob([data], {type: 'application/json'});
+		const url = URL.createObjectURL(blob);
+
+		const a = document.createElement('a');
+		a.href = url;
+		a.download = 'speaker-map.json';
+		a.click();
+		URL.revokeObjectURL(url);
+	};
+
 	clicks['button[data-action="bulk-set-speaker"]'] = () => {
 		const value = (
 			target.querySelector('#bulk-set-speaker') as HTMLInputElement
@@ -642,6 +654,11 @@ function update(
 								([, , index]) => `speaker-map-index-${index}`,
 								render_speaker_map_item,
 							)}</ol>
+							<button
+								type="button"
+								data-action="download-speaker-map"
+								title="Download Speaker Map"
+							>💾</button>
 						</details>
 					</li>
 					<li>
