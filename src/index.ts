@@ -193,9 +193,9 @@ function init_ui(target: HTMLElement, whisperx: (
 			}
 		} else {
 			if (target.checked) {
-				bulk_action_checked.delete(value);
-			} else {
 				bulk_action_checked.add(value);
+			} else {
+				bulk_action_checked.delete(value);
 			}
 		}
 
