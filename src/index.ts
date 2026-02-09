@@ -258,18 +258,18 @@ function init_ui(target: HTMLElement, whisperx: (
 			target.querySelector('#bulk-set-speaker') as HTMLInputElement
 		).value as `SPEAKER_${number}`;
 
-		const speakers: NodeListOf<
-			HTMLInputElement
-		> = target.querySelectorAll('input[name="bulk-action[]"]:checked');
+		for (const i of bulk_action_checked) {
+			const node: HTMLLIElement | null = target.querySelector(
+				`[data-i="${i}"][data-has-k]`,
+			);
 
-		for (const checkbox of speakers) {
-			const i = parseInt(checkbox.value);
-			const k_siblings: NodeListOf<HTMLSpanElement> = (
-				checkbox.parentNode as HTMLLIElement
-			).querySelectorAll('[data-k]');
-			const ks = [
-				...k_siblings,
-			].map((e) => parseInt(e.dataset.k || '0'));
+			if (!node) {
+				throw new Error('Could not find node!');
+			}
+
+			const ks = (
+				node.dataset.hasK as string
+			).split(' ').map((e) => parseInt(e));
 
 			(
 				whisperx as with_speaker_and_words
@@ -504,7 +504,9 @@ function update(
 	`;
 
 	const template = html`
-		<form>
+		<form class="${classMap({
+			'has-any-bulk-actions-checked': bulk_action_checked.size > 0,
+		})}">
 			<datalist id="speaker-values">${repeat(
 				speakers,
 				(speaker) => speakers.indexOf(speaker),

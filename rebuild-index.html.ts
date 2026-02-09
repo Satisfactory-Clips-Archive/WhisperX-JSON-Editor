@@ -144,11 +144,6 @@ form
 	width: 100% ;
 }
 
-form:not(:has(.transcription input[name="bulk-action[]"]:checked)) .bulk-action
-{
-	display: none ;
-}
-
 fieldset:not(:has(.transcription))
 {
 	details ol,
