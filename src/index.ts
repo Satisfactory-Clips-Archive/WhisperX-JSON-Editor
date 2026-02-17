@@ -519,7 +519,6 @@ function init_ui(target: HTMLElement, whisperx: (
 				),
 			);
 
-
 			if (1 === items.length) {
 				void check_speakermap(items[0])
 					.then((res) => {
@@ -1061,7 +1060,6 @@ function init(target: HTMLElement) {
 		const items = [...e.dataTransfer.items || []].filter(
 			(item) => item.kind === 'file' && item.type === 'application/json',
 		);
-
 
 		if (1 === items.length) {
 			void check_whisperx(items[0])
