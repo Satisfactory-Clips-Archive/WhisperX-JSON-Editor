@@ -656,6 +656,8 @@ function update(
 
 	let k = 0;
 
+	const first_instance_of_speaker_rendered = new Set<`SPEAKER_${number}`>();
+
 	const render_verbose = html`
 		<li>
 			<input type="checkbox" id="verbose">
@@ -896,6 +898,15 @@ function update(
 			++unsorted[word.speaker];
 		}
 
+		const override_visibility = (
+			'speaker' in segment
+			&& !first_instance_of_speaker_rendered.has(segment.speaker)
+		);
+
+		if ('speaker' in segment) {
+			first_instance_of_speaker_rendered.add(segment.speaker);
+		}
+
 		const sorted = Object.entries(unsorted)
 			.sort(([, a], [, b]) => b - a);
 
@@ -917,7 +928,11 @@ function update(
 				}"
 			>
 				${when(
-					visibility[i] || bulk_action_checked.has(i),
+					(
+						visibility[i]
+						|| bulk_action_checked.has(i)
+						|| override_visibility
+					),
 					() => html`
 						<input
 							type="checkbox"
@@ -935,6 +950,7 @@ function update(
 						|| has_k.find((
 							maybe,
 						) => search.results.includes(maybe))
+						|| override_visibility
 					),
 					() => html`
 						<time
