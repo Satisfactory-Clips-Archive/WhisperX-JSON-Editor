@@ -530,6 +530,10 @@ function init_ui(target: HTMLElement, whisperx: (
 							][]
 						) {
 							speaker_map[k] = v;
+
+							if (!speakers.includes(k)) {
+								speakers.push(k);
+							}
 						}
 
 						changed = true;
