@@ -30,6 +30,7 @@ function is_speaker_map(
 		: ajv.compile<speaker_map>(schema);
 
 	if (!validator(value)) {
+		console.error(validator.errors);
 		throw new Error('Does not match!');
 	}
 }

@@ -181,6 +181,7 @@ function is_whisperx(
 		)>(schema);
 
 	if (!validator(value)) {
+		console.error(validator.errors);
 		throw new Error('Does not match!');
 	}
 }
